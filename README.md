@@ -33,7 +33,7 @@
 
 ## 🌐 線上體驗
 
-[點擊這裡體驗線上版本](https://your-username.github.io/mbti-aroma-generator/)
+[點擊這裡體驗線上版本](https://jessie533tw.github.io/mbti-aroma-generator/)
 
 ---
 

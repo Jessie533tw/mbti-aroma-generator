@@ -1,0 +1,706 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MBTI × 芳療香氛配方產生器</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .title {
+            font-size: 2.5em;
+            color: #2c3e50;
+            margin-bottom: 15px;
+            font-weight: 300;
+            letter-spacing: 1px;
+        }
+
+        .subtitle {
+            font-size: 1.2em;
+            color: #7f8c8d;
+            line-height: 1.6;
+        }
+
+        .card {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            margin-bottom: 30px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 1.1em;
+            color: #2c3e50;
+            margin-bottom: 10px;
+            font-weight: 500;
+        }
+
+        .form-select, .quiz-option {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e9ecef;
+            border-radius: 12px;
+            font-size: 1em;
+            transition: border-color 0.3s ease;
+            background: white;
+        }
+
+        .form-select:focus {
+            outline: none;
+            border-color: #6c63ff;
+        }
+
+        .quiz-option {
+            margin-bottom: 10px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+        }
+
+        .quiz-option:hover {
+            background: #f8f9fa;
+            border-color: #6c63ff;
+        }
+
+        .quiz-option.selected {
+            background: #6c63ff;
+            color: white;
+            border-color: #6c63ff;
+        }
+
+        .quiz-option input[type="radio"] {
+            margin-right: 10px;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #6c63ff 0%, #8b5cf6 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 12px;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(108, 99, 255, 0.3);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .result-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-align: center;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
+            margin-top: 30px;
+            display: none;
+        }
+
+        .mbti-type {
+            font-size: 3em;
+            font-weight: bold;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .personality-title {
+            font-size: 1.5em;
+            margin-bottom: 30px;
+            opacity: 0.9;
+        }
+
+        .formula-section {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 25px;
+            margin: 20px 0;
+            backdrop-filter: blur(10px);
+        }
+
+        .formula-title {
+            font-size: 1.3em;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+
+        .formula-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding: 10px 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            font-size: 1.1em;
+        }
+
+        .formula-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .formula-label {
+            font-weight: 600;
+        }
+
+        .formula-value {
+            font-weight: 400;
+            opacity: 0.9;
+        }
+
+        .description {
+            font-size: 1.2em;
+            line-height: 1.6;
+            margin: 25px 0;
+            font-style: italic;
+            opacity: 0.9;
+        }
+
+        .export-buttons {
+            margin-top: 30px;
+        }
+
+        .export-buttons .btn {
+            margin: 0 10px;
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .export-buttons .btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            border-color: rgba(255, 255, 255, 0.5);
+        }
+
+        .quiz-container {
+            display: none;
+        }
+
+        .quiz-question {
+            font-size: 1.2em;
+            color: #2c3e50;
+            margin-bottom: 20px;
+            font-weight: 500;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #e9ecef;
+            border-radius: 4px;
+            margin-bottom: 30px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(135deg, #6c63ff 0%, #8b5cf6 100%);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .mode-switch {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .mode-btn {
+            background: transparent;
+            border: 2px solid #6c63ff;
+            color: #6c63ff;
+            padding: 10px 20px;
+            margin: 0 10px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .mode-btn.active {
+            background: #6c63ff;
+            color: white;
+        }
+
+        @media (max-width: 768px) {
+            .title {
+                font-size: 2em;
+            }
+
+            .card {
+                padding: 20px;
+                margin-bottom: 20px;
+            }
+
+            .result-card {
+                padding: 30px 20px;
+            }
+
+            .mbti-type {
+                font-size: 2.5em;
+            }
+
+            .export-buttons .btn {
+                margin: 5px;
+                display: block;
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1 class="title">MBTI × 芳療香氛配方產生器</h1>
+            <p class="subtitle">探索你的人格特質，找到專屬的香氛配方<br>讓香氣陪伴你的每一個獨特時刻</p>
+        </div>
+
+        <div class="card">
+            <div class="mode-switch">
+                <button class="mode-btn active" onclick="switchMode('direct')">直接選擇 MBTI</button>
+                <button class="mode-btn" onclick="switchMode('quiz')">快速測驗</button>
+            </div>
+
+            <!-- 直接選擇模式 -->
+            <div id="direct-mode">
+                <div class="form-group">
+                    <label class="form-label">選擇你的 MBTI 人格類型：</label>
+                    <select class="form-select" id="mbti-select">
+                        <option value="">請選擇...</option>
+                        <option value="INFJ">INFJ - 提倡者</option>
+                        <option value="INFP">INFP - 調停者</option>
+                        <option value="INTJ">INTJ - 建築師</option>
+                        <option value="INTP">INTP - 思想家</option>
+                        <option value="ISFJ">ISFJ - 守護者</option>
+                        <option value="ISFP">ISFP - 探險家</option>
+                        <option value="ISTJ">ISTJ - 物流師</option>
+                        <option value="ISTP">ISTP - 鑑賞家</option>
+                        <option value="ENFJ">ENFJ - 主人公</option>
+                        <option value="ENFP">ENFP - 競選者</option>
+                        <option value="ENTJ">ENTJ - 指揮官</option>
+                        <option value="ENTP">ENTP - 辯論家</option>
+                        <option value="ESFJ">ESFJ - 執政官</option>
+                        <option value="ESFP">ESFP - 娛樂家</option>
+                        <option value="ESTJ">ESTJ - 總經理</option>
+                        <option value="ESTP">ESTP - 企業家</option>
+                    </select>
+                </div>
+                <button class="btn" onclick="generateFormula()" id="generate-btn" disabled>生成專屬配方</button>
+            </div>
+
+            <!-- 測驗模式 -->
+            <div id="quiz-mode" class="quiz-container">
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progress-fill"></div>
+                </div>
+                <div id="quiz-content">
+                    <!-- 測驗內容將由 JavaScript 動態生成 -->
+                </div>
+            </div>
+        </div>
+
+        <!-- 結果卡片 -->
+        <div class="result-card" id="result-card">
+            <div class="mbti-type" id="result-type"></div>
+            <div class="personality-title" id="result-title"></div>
+            
+            <div class="formula-section">
+                <div class="formula-title">專屬香氛配方</div>
+                <div class="formula-item">
+                    <span class="formula-label">基調</span>
+                    <span class="formula-value" id="base-note"></span>
+                </div>
+                <div class="formula-item">
+                    <span class="formula-label">補強</span>
+                    <span class="formula-value" id="complement-note"></span>
+                </div>
+                <div class="formula-item">
+                    <span class="formula-label">平衡</span>
+                    <span class="formula-value" id="balance-note"></span>
+                </div>
+            </div>
+            
+            <div class="description" id="aroma-description"></div>
+            
+            <div class="export-buttons">
+                <button class="btn" onclick="exportAsPNG()">匯出為 PNG</button>
+                <button class="btn" onclick="exportAsPDF()">匯出為 PDF</button>
+                <button class="btn" onclick="resetForm()">重新測試</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 引入必要的庫 -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+    <script>
+        // MBTI 對應的香氛配方資料
+        const mbtiFormulas = {
+            'INFJ': {
+                title: '提倡者 - 神秘的理想主義者',
+                base: '花香調 / 茶香調',
+                complement: '木質調',
+                balance: '柑橘調',
+                description: '如夢似幻的花香，帶著深邃的木質底蘊，清新柑橘點亮內心的理想光芒。'
+            },
+            'INTJ': {
+                title: '建築師 - 理性的戰略家',
+                base: '木質調 / 皮革調',
+                complement: '柑橘調',
+                balance: '花香調',
+                description: '沉穩的木質與皮革展現理性力量，柑橘活化思維，淡雅花香軟化剛毅。'
+            },
+            'INFP': {
+                title: '調停者 - 詩意的夢想家',
+                base: '花香調 / 果香調',
+                complement: '草本調',
+                balance: '木質調',
+                description: '溫柔花果香訴說內心詩意，清新草本帶來平靜，溫暖木質給予安全感。'
+            },
+            'INTP': {
+                title: '思想家 - 創新的邏輯學家',
+                base: '草本調 / 薄荷調',
+                complement: '木質調',
+                balance: '柑橘調',
+                description: '清涼薄荷激發創意思維，深沉木質穩定思緒，明亮柑橘點燃靈感火花。'
+            },
+            'ISFJ': {
+                title: '守護者 - 溫暖的保護者',
+                base: '花香調 / 香草調',
+                complement: '果香調',
+                balance: '木質調',
+                description: '溫暖香草如母親懷抱，甜美花果香傳遞關愛，穩重木質展現可靠品格。'
+            },
+            'ISFP': {
+                title: '探險家 - 靈活的藝術家',
+                base: '果香調 / 花香調',
+                complement: '海洋調',
+                balance: '草本調',
+                description: '活潑果香展現藝術天賦，清新海風帶來自由感，自然草本回歸純真。'
+            },
+            'ISTJ': {
+                title: '物流師 - 可靠的實務家',
+                base: '木質調 / 琥珀調',
+                complement: '香草調',
+                balance: '柑橘調',
+                description: '厚實木質象徵可靠品格，溫潤琥珀展現智慧，清新柑橘帶來活力。'
+            },
+            'ISTP': {
+                title: '鑑賞家 - 大膽的實驗家',
+                base: '海洋調 / 木質調',
+                complement: '薄荷調',
+                balance: '香辛調',
+                description: '清新海風展現自由靈魂，冷靜薄荷保持理性，溫暖香辛增添神秘感。'
+            },
+            'ENFJ': {
+                title: '主人公 - 熱情的引路人',
+                base: '花香調 / 果香調',
+                complement: '木質調',
+                balance: '香辛調',
+                description: '熱情花果香感染他人，溫暖木質給予支持，活潑香辛展現領導魅力。'
+            },
+            'ENFP': {
+                title: '競選者 - 熱情的激勵者',
+                base: '柑橘調 / 果香調',
+                complement: '花香調',
+                balance: '草本調',
+                description: '明亮柑橘如陽光般溫暖，甜美果香傳遞樂觀，清新草本平衡活力。'
+            },
+            'ENTJ': {
+                title: '指揮官 - 大膽的領導者',
+                base: '木質調 / 皮革調',
+                complement: '香辛調',
+                balance: '柑橘調',
+                description: '強勢木質展現領導威嚴，溫暖香辛增添魅力，清新柑橘激發創新思維。'
+            },
+            'ENTP': {
+                title: '辯論家 - 聰明的思辨者',
+                base: '柑橘調 / 薄荷調',
+                complement: '草本調',
+                balance: '木質調',
+                description: '活潑柑橘激發辯論熱情，清涼薄荷保持敏銳，自然草本平衡理性。'
+            },
+            'ESFJ': {
+                title: '執政官 - 熱心的支持者',
+                base: '花香調 / 香草調',
+                complement: '果香調',
+                balance: '海洋調',
+                description: '溫馨花香傳遞關懷，甜美香草展現溫暖，清新海風帶來平靜安詳。'
+            },
+            'ESFP': {
+                title: '娛樂家 - 自發的表演者',
+                base: '果香調 / 花香調',
+                complement: '柑橘調',
+                balance: '香草調',
+                description: '歡快果香如舞台聚光燈，明亮柑橘點燃表演熱情，溫暖香草安撫心靈。'
+            },
+            'ESTJ': {
+                title: '總經理 - 高效的組織者',
+                base: '木質調 / 琥珀調',
+                complement: '香辛調',
+                balance: '薄荷調',
+                description: '穩重木質展現組織能力，溫暖琥珀蘊含智慧，清涼薄荷保持效率。'
+            },
+            'ESTP': {
+                title: '企業家 - 精力充沛的實踐者',
+                base: '柑橘調 / 海洋調',
+                complement: '香辛調',
+                balance: '木質調',
+                description: '活力柑橘如創業激情，清新海風展現冒險精神，穩重木質奠定根基。'
+            }
+        };
+
+        // 測驗題目
+        const quizQuestions = [
+            {
+                question: "在社交場合中，你更傾向於：",
+                options: [
+                    { text: "主動與多人交談，享受熱鬧氛圍", value: "E" },
+                    { text: "與少數熟人深入對話，避免過於喧鬧", value: "I" }
+                ],
+                dimension: 0 // E-I
+            },
+            {
+                question: "面對新資訊時，你更注重：",
+                options: [
+                    { text: "具體的事實和細節", value: "S" },
+                    { text: "整體概念和可能性", value: "N" }
+                ],
+                dimension: 1 // S-N
+            },
+            {
+                question: "做決定時，你更依賴：",
+                options: [
+                    { text: "邏輯分析和客觀標準", value: "T" },
+                    { text: "個人價值觀和他人感受", value: "F" }
+                ],
+                dimension: 2 // T-F
+            },
+            {
+                question: "對於計劃，你的態度是：",
+                options: [
+                    { text: "喜歡制定明確計劃並按部就班執行", value: "J" },
+                    { text: "保持彈性，隨情況調整或即興發揮", value: "P" }
+                ],
+                dimension: 3 // J-P
+            }
+        ];
+
+        let currentQuestion = 0;
+        let quizAnswers = [];
+        let currentMode = 'direct';
+
+        // 初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('mbti-select').addEventListener('change', function() {
+                document.getElementById('generate-btn').disabled = this.value === '';
+            });
+        });
+
+        // 切換模式
+        function switchMode(mode) {
+            currentMode = mode;
+            document.querySelectorAll('.mode-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            if (mode === 'direct') {
+                document.getElementById('direct-mode').style.display = 'block';
+                document.getElementById('quiz-mode').style.display = 'none';
+            } else {
+                document.getElementById('direct-mode').style.display = 'none';
+                document.getElementById('quiz-mode').style.display = 'block';
+                startQuiz();
+            }
+        }
+
+        // 開始測驗
+        function startQuiz() {
+            currentQuestion = 0;
+            quizAnswers = [];
+            showQuestion();
+        }
+
+        // 顯示測驗題目
+        function showQuestion() {
+            const question = quizQuestions[currentQuestion];
+            const progress = ((currentQuestion + 1) / quizQuestions.length) * 100;
+            
+            document.getElementById('progress-fill').style.width = progress + '%';
+            
+            const quizContent = document.getElementById('quiz-content');
+            quizContent.innerHTML = `
+                <div class="quiz-question">${currentQuestion + 1}. ${question.question}</div>
+                ${question.options.map((option, index) => `
+                    <div class="quiz-option" onclick="selectQuizOption(${index})">
+                        <input type="radio" name="q${currentQuestion}" value="${option.value}" id="q${currentQuestion}_${index}">
+                        <label for="q${currentQuestion}_${index}">${option.text}</label>
+                    </div>
+                `).join('')}
+                <button class="btn" onclick="nextQuestion()" id="next-btn" disabled style="margin-top: 20px;">
+                    ${currentQuestion < quizQuestions.length - 1 ? '下一題' : '完成測驗'}
+                </button>
+            `;
+        }
+
+        // 選擇測驗選項
+        function selectQuizOption(optionIndex) {
+            const question = quizQuestions[currentQuestion];
+            const options = document.querySelectorAll(`input[name="q${currentQuestion}"]`);
+            const optionDivs = document.querySelectorAll('.quiz-option');
+            
+            // 清除之前的選擇
+            optionDivs.forEach(div => div.classList.remove('selected'));
+            
+            // 選中當前選項
+            options[optionIndex].checked = true;
+            optionDivs[optionIndex].classList.add('selected');
+            
+            // 啟用下一題按鈕
+            document.getElementById('next-btn').disabled = false;
+        }
+
+        // 下一題
+        function nextQuestion() {
+            const question = quizQuestions[currentQuestion];
+            const selectedOption = document.querySelector(`input[name="q${currentQuestion}"]:checked`);
+            
+            if (selectedOption) {
+                quizAnswers[question.dimension] = selectedOption.value;
+                
+                if (currentQuestion < quizQuestions.length - 1) {
+                    currentQuestion++;
+                    showQuestion();
+                } else {
+                    // 完成測驗，計算結果
+                    const mbtiType = quizAnswers.join('');
+                    showResult(mbtiType);
+                }
+            }
+        }
+
+        // 生成配方（直接選擇模式）
+        function generateFormula() {
+            const selectedType = document.getElementById('mbti-select').value;
+            if (selectedType) {
+                showResult(selectedType);
+            }
+        }
+
+        // 顯示結果
+        function showResult(mbtiType) {
+            const formula = mbtiFormulas[mbtiType];
+            if (!formula) return;
+
+            document.getElementById('result-type').textContent = mbtiType;
+            document.getElementById('result-title').textContent = formula.title;
+            document.getElementById('base-note').textContent = formula.base;
+            document.getElementById('complement-note').textContent = formula.complement;
+            document.getElementById('balance-note').textContent = formula.balance;
+            document.getElementById('aroma-description').textContent = formula.description;
+
+            document.getElementById('result-card').style.display = 'block';
+            document.getElementById('result-card').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // 匯出為 PNG
+        function exportAsPNG() {
+            const resultCard = document.getElementById('result-card');
+            html2canvas(resultCard, {
+                scale: 2,
+                backgroundColor: null
+            }).then(canvas => {
+                const link = document.createElement('a');
+                link.download = `MBTI香氛配方_${document.getElementById('result-type').textContent}.png`;
+                link.href = canvas.toDataURL();
+                link.click();
+            });
+        }
+
+        // 匯出為 PDF
+        function exportAsPDF() {
+            const { jsPDF } = window.jspdf;
+            const resultCard = document.getElementById('result-card');
+            
+            html2canvas(resultCard, {
+                scale: 2,
+                backgroundColor: null
+            }).then(canvas => {
+                const pdf = new jsPDF();
+                const imgData = canvas.toDataURL('image/png');
+                const imgWidth = 190;
+                const pageHeight = pdf.internal.pageSize.height;
+                const imgHeight = (canvas.height * imgWidth) / canvas.width;
+                let heightLeft = imgHeight;
+                let position = 10;
+
+                pdf.addImage(imgData, 'PNG', 10, position, imgWidth, imgHeight);
+                heightLeft -= pageHeight;
+
+                while (heightLeft >= 0) {
+                    position = heightLeft - imgHeight;
+                    pdf.addPage();
+                    pdf.addImage(imgData, 'PNG', 10, position, imgWidth, imgHeight);
+                    heightLeft -= pageHeight;
+                }
+
+                pdf.save(`MBTI香氛配方_${document.getElementById('result-type').textContent}.pdf`);
+            });
+        }
+
+        // 重新測試
+        function resetForm() {
+            document.getElementById('result-card').style.display = 'none';
+            document.getElementById('mbti-select').value = '';
+            document.getElementById('generate-btn').disabled = true;
+            currentQuestion = 0;
+            quizAnswers = [];
+            
+            // 重置到直接選擇模式
+            switchMode('direct');
+            document.querySelectorAll('.mode-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelector('.mode-btn').classList.add('active');
+        }
+    </script>
+</body>
+</html>
